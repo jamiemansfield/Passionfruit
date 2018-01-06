@@ -1,5 +1,7 @@
 package me.jamiemansfield.passionfruit.test;
 
+import static me.jamiemansfield.passionfruit.test.CommandUtils.register;
+import static me.jamiemansfield.passionfruit.test.CommandUtils.subregister;
 import static org.junit.Assert.assertEquals;
 
 import com.google.common.collect.ImmutableMap;
@@ -10,14 +12,6 @@ import org.junit.Test;
 import java.util.Map;
 
 public final class DispatcherTest {
-
-    private static CommandDispatcher<TestCommandCaller> createDispatcher() {
-        return new CommandDispatcher<>();
-    }
-
-    private static void registerSimpleCommand(final CommandDispatcher<TestCommandCaller> dispatcher, final String command, final String result) {
-        dispatcher.register(command, (caller, args) -> caller.message(result));
-    }
 
     private static final Map<String, String> COMMAND_TESTS = ImmutableMap.<String, String>builder()
             .put("test", "test")
@@ -35,32 +29,28 @@ public final class DispatcherTest {
 
     @BeforeClass
     public static void initialise() {
-        dispatcher = createDispatcher();
-
-        COMMAND_TESTS.forEach((command, result) -> registerSimpleCommand(dispatcher, command, result));
-        SUBCOMMAND_TESTS.forEach((rootCommand, childCommands) -> {
-            final CommandDispatcher<TestCommandCaller> rootDispatcher = createDispatcher();
-            childCommands.forEach((command, result) -> registerSimpleCommand(rootDispatcher, command, result));
-            dispatcher.register(rootCommand, rootDispatcher);
-        });
-
+        dispatcher = subregister(register(COMMAND_TESTS), SUBCOMMAND_TESTS);
         caller = new TestCommandCaller();
     }
 
     @Test
     public void commandTest() {
-        COMMAND_TESTS.forEach((command, expectedResult) -> {
-            dispatcher.execute(caller, command);
-            assertEquals(expectedResult, caller.getMessage());
-        });
+        COMMAND_TESTS.forEach(this::test);
     }
 
     @Test
     public void subcommandTest() {
-        SUBCOMMAND_TESTS.forEach((rootCommand, childCommands) -> childCommands.forEach((command, expectedResult) -> {
-            dispatcher.execute(caller, rootCommand + " " + command);
-            assertEquals(expectedResult, caller.getMessage());
-        }));
+        SUBCOMMAND_TESTS.forEach((rootCommand, childCommands) ->
+                childCommands.forEach((childCommand, expectedResult) -> this.test(rootCommand, childCommand, expectedResult)));
+    }
+
+    private void test(final String parent, final String child, final String expectedResult) {
+        this.test(parent + " " + child, expectedResult);
+    }
+
+    private void test(final String command, final String expectedResult) {
+        dispatcher.execute(caller, command);
+        assertEquals(expectedResult, caller.getMessage());
     }
 
 }
