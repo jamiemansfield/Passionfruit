@@ -23,21 +23,27 @@
  * THE SOFTWARE.
  */
 
-package me.jamiemansfield.passionfruit.test;
+package me.jamiemansfield.passionfruit.util;
 
 import me.jamiemansfield.passionfruit.CommandCaller;
+import me.jamiemansfield.passionfruit.CommandDispatcher;
 
-public class TestCommandCaller implements CommandCaller {
+/**
+ * A utility class pertaining to making Passionfruit easier/more fluent to use.
+ */
+public final class Commands {
 
-    private String message;
-
-    @Override
-    public void message(final String message) {
-        this.message = message;
+    /**
+     * Creates a new {@link CommandDispatcher}.
+     *
+     * @param <C> The type of the command caller
+     * @return The command dispatcher
+     */
+    public static <C extends CommandCaller> CommandDispatcher<C> createDispatcher() {
+        return new CommandDispatcher<>();
     }
 
-    public String getMessage() {
-        return this.message;
+    private Commands() {
     }
 
 }

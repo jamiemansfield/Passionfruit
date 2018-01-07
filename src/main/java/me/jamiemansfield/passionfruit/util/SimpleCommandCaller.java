@@ -23,21 +23,32 @@
  * THE SOFTWARE.
  */
 
-package me.jamiemansfield.passionfruit.test;
+package me.jamiemansfield.passionfruit.util;
 
 import me.jamiemansfield.passionfruit.CommandCaller;
 
-public class TestCommandCaller implements CommandCaller {
+import java.io.PrintStream;
 
-    private String message;
+/**
+ * A simple implementation of {@link CommandCaller}, that messages to a
+ * {@link PrintStream} - such as {@link System#out}.
+ */
+public class SimpleCommandCaller implements CommandCaller {
+
+    private final PrintStream printStream;
+
+    /**
+     * Creates a command caller from the provided print stream.
+     *
+     * @param printStream The print stream
+     */
+    public SimpleCommandCaller(final PrintStream printStream) {
+        this.printStream = printStream;
+    }
 
     @Override
     public void message(final String message) {
-        this.message = message;
-    }
-
-    public String getMessage() {
-        return this.message;
+        this.printStream.println(message);
     }
 
 }
