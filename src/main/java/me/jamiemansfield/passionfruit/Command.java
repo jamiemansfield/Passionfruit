@@ -30,6 +30,7 @@ package me.jamiemansfield.passionfruit;
  *
  * @param <C> The type of the command caller
  */
+@FunctionalInterface
 public interface Command<C extends CommandCaller> {
 
     /**
