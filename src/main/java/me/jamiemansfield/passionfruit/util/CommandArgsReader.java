@@ -23,22 +23,51 @@
  * THE SOFTWARE.
  */
 
-package me.jamiemansfield.passionfruit;
+package me.jamiemansfield.passionfruit.util;
+
+import me.jamiemansfield.passionfruit.CommandArgs;
+
+import java.util.NoSuchElementException;
 
 /**
- * An interface used to describe a command within Passionfruit.
- *
- * @param <C> The type of the command caller
+ * This class is to commands, what {@link java.util.Scanner} is
+ * to command line reading.
  */
-@FunctionalInterface
-public interface Command<C extends CommandCaller> {
+public class CommandArgsReader {
+
+    private final CommandArgs args;
+    private int index = -1;
 
     /**
-     * Executes the command, using the provided caller and arguments.
+     * Creates a new command args reader, from the given command args.
      *
-     * @param caller The command caller
-     * @param args The arguments, with the command name omitted
+     * @param args The command args
      */
-    void execute(final C caller, final CommandArgs args);
+    public CommandArgsReader(final CommandArgs args) {
+        this.args = args;
+    }
+
+    /**
+     * Establishes whether there is a remaining argument to read.
+     *
+     * @return {@code true} if there is another argument;
+     *         {@code false} otherwise
+     */
+    public boolean hasNext() {
+        return this.args.getArgs().size() > this.index + 1;
+    }
+
+    /**
+     * Gets the next argument, if available.
+     *
+     * @return The next argument
+     * @throws NoSuchElementException Should no available argument be remaining to be read
+     */
+    public String next() {
+        if (!this.hasNext()) {
+            throw new NoSuchElementException("There are no arguments left!");
+        }
+        return this.args.getArgs().get(++this.index);
+    }
 
 }

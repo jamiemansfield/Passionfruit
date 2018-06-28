@@ -30,7 +30,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Dispatches commands to the correct {@link Command}.
+ * An object used for dispatching commands, implementing
+ * {@link Command} as an easy means of implementing sub-commands.
  *
  * @param <C> The command caller type
  */
@@ -48,7 +49,7 @@ public class CommandDispatcher<C extends CommandCaller> implements Command<C> {
     }
 
     /**
-     * Registers the command.
+     * Registers the command to the registry under the given name.
      *
      * @param name The name of the command
      * @param command The command
@@ -60,17 +61,17 @@ public class CommandDispatcher<C extends CommandCaller> implements Command<C> {
     }
 
     @Override
-    public void execute(final C caller, final String[] args) {
-        final String commandName = args[0];
+    public void execute(final C caller, final CommandArgs args) {
+        final String commandName = args.getRawArgs()[0];
 
         // Get the command from the registry
         final Command<C> command = this.registry.getOrDefault(commandName, COMMAND_NOT_FOUND);
 
         // Copy args without the first element
-        final String[] newArgs = Arrays.copyOfRange(args, 1, args.length);
+        final String[] newArgs = Arrays.copyOfRange(args.getRawArgs(), 1, args.getRawArgs().length);
 
         // Execute the command
-        command.execute(caller, newArgs);
+        command.execute(caller, new CommandArgs(newArgs));
     }
 
     /**
@@ -80,7 +81,7 @@ public class CommandDispatcher<C extends CommandCaller> implements Command<C> {
      * @param line The command line
      */
     public void execute(final C caller, final String line) {
-        this.execute(caller, line.split(" "));
+        this.execute(caller, new CommandArgs(line.split(" ")));
     }
 
 }
